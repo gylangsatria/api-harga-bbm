@@ -9,11 +9,11 @@ yarn-error.log*
 .env.local
 .env.*.local
 
-# Docker files (dikecualikan)
-docker-compose.yml
-docker-compose.*.yml
-Dockerfile
-.dockerignore
+# Docker files (opsional - sertakan jika ingin dibagikan)
+# docker-compose.yml
+# docker-compose.*.yml
+# Dockerfile
+# .dockerignore
 
 # Data files
 data/*.json
