@@ -85,13 +85,13 @@ Jika ingin menonaktifkannya, hapus baris berikut dari `docker-compose.yml`:
 
 ```yaml
 networks:
-  - cloudflare-tunnel   # ← hapus baris ini
+  - cloudflare-tunnel # ← hapus baris ini
 ```
 
 dan pada bagian `networks:` di akhir file:
 
 ```yaml
-cloudflare-tunnel:      # ← hapus blok ini
+cloudflare-tunnel: # ← hapus blok ini
   external: true
 ```
 
@@ -103,7 +103,7 @@ services:
     networks:
       - bbm-network
       - cloudflare-tunnel
-      - nama-network-anda   # ← tambahkan di sini
+      - nama-network-anda # ← tambahkan di sini
 
 networks:
   nama-network-anda:
