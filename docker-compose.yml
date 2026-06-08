@@ -26,7 +26,10 @@ services:
       start_period: 10s
     networks:
       - bbm-network
+      - cloudflare-tunnel
 
 networks:
   bbm-network:
     driver: bridge
+  cloudflare-tunnel:
+    external: true

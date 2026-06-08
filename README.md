@@ -43,18 +43,18 @@ npm start
 
 ## Endpoints
 
-| Method | Endpoint | Deskripsi |
-|--------|----------|-----------|
-| `GET` | `/health` | Health check |
-| `GET` | `/api/harga-bbm` | Ambil data harga BBM (dengan cache) |
-| `GET` | `/api/harga-bbm?refresh=true` | Paksa ambil data baru dari isibens.in |
-| `POST` | `/api/refresh` | Refresh data cache |
+| Method | Endpoint                      | Deskripsi                             |
+| ------ | ----------------------------- | ------------------------------------- |
+| `GET`  | `/health`                     | Health check                          |
+| `GET`  | `/api/harga-bbm`              | Ambil data harga BBM (dengan cache)   |
+| `GET`  | `/api/harga-bbm?refresh=true` | Paksa ambil data baru dari isibens.in |
+| `POST` | `/api/refresh`                | Refresh data cache                    |
 
 ## Environment Variables
 
-| Variable | Default | Deskripsi |
-|----------|---------|-----------|
-| `PORT` | `5010` | Port API server |
+| Variable   | Default      | Deskripsi        |
+| ---------- | ------------ | ---------------- |
+| `PORT`     | `5010`       | Port API server  |
 | `NODE_ENV` | `production` | Environment mode |
 
 ## Struktur Folder
