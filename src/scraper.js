@@ -27,6 +27,16 @@ async function scrapeHargaBBM() {
       result.lastUpdate = updateMatch[1];
     }
 
+    // Mapping nama produk ke brand SPBU
+    function getBrand(name) {
+      if (/^Perta|^BioSolar|^DexLite|^Dex$/i.test(name)) return "Pertamina";
+      if (/^Revvo/i.test(name)) return "Vivo";
+      if (/^BP /i.test(name)) return "BP";
+      if (/^Super|^V-Power/i.test(name)) return "Shell";
+      if (/^Primus/i.test(name)) return "Primus";
+      return "Lainnya";
+    }
+
     // Parse tabel HTML dari isibens.in
     $("h4").each((i, el) => {
       const heading = $(el).text().trim();
@@ -55,9 +65,11 @@ async function scrapeHargaBBM() {
             if (priceMatch) {
               let price = priceMatch[1].replace(/\./g, "").replace(/,/g, "");
               price = parseInt(price);
-              const name = priceMatch[2].trim();
+              let name = priceMatch[2].trim();
+              // Ganti Revvo → Vivo
+              name = name.replace(/^Revvo/i, "Vivo");
               if (!isNaN(price) && name) {
-                result.bensin.push({ name, price, ron });
+                result.bensin.push({ name, brand: getBrand(name), price, ron });
               }
             }
           }
@@ -88,9 +100,11 @@ async function scrapeHargaBBM() {
             if (priceMatch) {
               let price = priceMatch[1].replace(/\./g, "").replace(/,/g, "");
               price = parseInt(price);
-              const name = priceMatch[2].trim();
+              let name = priceMatch[2].trim();
+              // Ganti Revvo → Vivo
+              name = name.replace(/^Revvo/i, "Vivo");
               if (!isNaN(price) && name) {
-                result.solar.push({ name, price, cetane });
+                result.solar.push({ name, brand: getBrand(name), price, cetane });
               }
             }
           }
@@ -113,15 +127,15 @@ async function scrapeHargaBBM() {
 function getFallbackData() {
   return {
     bensin: [
-      { name: "Pertalite", price: 10000, ron: 90 },
-      { name: "Pertamax", price: 12300, ron: 92 },
-      { name: "Pertamax Green", price: 12900, ron: 95 },
-      { name: "Pertamax Turbo", price: 20750, ron: 98 },
+      { name: "Pertalite", brand: "Pertamina", price: 10000, ron: 90 },
+      { name: "Pertamax", brand: "Pertamina", price: 12300, ron: 92 },
+      { name: "Pertamax Green", brand: "Pertamina", price: 12900, ron: 95 },
+      { name: "Pertamax Turbo", brand: "Pertamina", price: 20750, ron: 98 },
     ],
     solar: [
-      { name: "BioSolar", price: 6800, cetane: 48 },
-      { name: "DexLite", price: 23000, cetane: 51 },
-      { name: "Dex", price: 24800, cetane: 53 },
+      { name: "BioSolar", brand: "Pertamina", price: 6800, cetane: 48 },
+      { name: "DexLite", brand: "Pertamina", price: 23000, cetane: 51 },
+      { name: "Dex", brand: "Pertamina", price: 24800, cetane: 53 },
     ],
     lastUpdate: "1 Juni 2026",
     wilayah: "Jabodetabek",

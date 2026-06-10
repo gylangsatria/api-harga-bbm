@@ -142,6 +142,37 @@
         font-size: 0.75rem;
         color: #aaa;
       }
+      .brand-badge {
+        display: inline-block;
+        padding: 2px 10px;
+        border-radius: 20px;
+        font-size: 0.75rem;
+        font-weight: 600;
+      }
+      .brand-pertamina {
+        background: #00a63f;
+        color: #fff;
+      }
+      .brand-vivo {
+        background: #e30613;
+        color: #fff;
+      }
+      .brand-bp {
+        background: #006633;
+        color: #fff;
+      }
+      .brand-shell {
+        background: #ffd700;
+        color: #1a1a2e;
+      }
+      .brand-primus {
+        background: #004aad;
+        color: #fff;
+      }
+      .brand-lainnya {
+        background: rgba(255, 255, 255, 0.12);
+        color: #aaa;
+      }
       .refresh-bar {
         display: flex;
         justify-content: center;
@@ -237,6 +268,7 @@
         <table>
           <thead>
             <tr>
+              <th>SPBU</th>
               <th>Produk</th>
               <th>RON</th>
               <th>Harga</th>
@@ -244,7 +276,7 @@
           </thead>
           <tbody id="bensinBody">
             <tr>
-              <td colspan="3" style="text-align: center; color: #666">
+              <td colspan="4" style="text-align: center; color: #666">
                 Memuat data...
               </td>
             </tr>
@@ -257,6 +289,7 @@
         <table>
           <thead>
             <tr>
+              <th>SPBU</th>
               <th>Produk</th>
               <th>Cetane</th>
               <th>Harga</th>
@@ -264,7 +297,7 @@
           </thead>
           <tbody id="solarBody">
             <tr>
-              <td colspan="3" style="text-align: center; color: #666">
+              <td colspan="4" style="text-align: center; color: #666">
                 Memuat data...
               </td>
             </tr>
@@ -305,6 +338,7 @@
         const tr = document.createElement("tr");
         const isZero = item.price === 0;
         tr.innerHTML = `
+        <td><span class="brand-badge brand-${item.brand?.toLowerCase() || "lainnya"}">${item.brand || "—"}</span></td>
         <td><strong>${item.name}</strong></td>
         <td><span class="badge">${item[specKey]}</span></td>
         <td class="price ${isZero ? "zero" : ""}">${formatPrice(item.price)}</td>
@@ -325,7 +359,7 @@
           });
         } else {
           bensinBody.innerHTML =
-            '<tr><td colspan="3" style="text-align:center;color:#666">Tidak ada data</td></tr>';
+            '<tr><td colspan="4" style="text-align:center;color:#666">Tidak ada data</td></tr>';
         }
 
         // Solar
@@ -336,7 +370,7 @@
           });
         } else {
           solarBody.innerHTML =
-            '<tr><td colspan="3" style="text-align:center;color:#666">Tidak ada data</td></tr>';
+            '<tr><td colspan="4" style="text-align:center;color:#666">Tidak ada data</td></tr>';
         }
 
         // Info

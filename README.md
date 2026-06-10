@@ -61,11 +61,11 @@ npm start
 
 ## Environment Variables
 
-| Variable           | Default        | Deskripsi                        |
-| ------------------ | -------------- | -------------------------------- |
-| `PORT`             | `5010`         | Port server                      |
-| `REFRESH_INTERVAL` | `300000`       | Interval auto-refresh (dalam ms) |
-| `NODE_ENV`         | `production`   | Environment mode                 |
+| Variable           | Default      | Deskripsi                        |
+| ------------------ | ------------ | -------------------------------- |
+| `PORT`             | `5010`       | Port server                      |
+| `REFRESH_INTERVAL` | `300000`     | Interval auto-refresh (dalam ms) |
+| `NODE_ENV`         | `production` | Environment mode                 |
 
 ## Kustomisasi Docker Compose
 
