@@ -41,21 +41,31 @@ npm run dev
 npm start
 ```
 
+## Fitur Real-time
+
+- **Auto-refresh server**: Data di-scrape otomatis setiap 5 menit (bisa diatur via env `REFRESH_INTERVAL` dalam ms)
+- **SSE (Server-Sent Events)**: Push real-time ke semua client yang terhubung
+- **Frontend dashboard**: Buka `http://localhost:5010` untuk melihat harga BBM secara live
+- **Polling fallback**: Halaman frontend akan polling setiap 30 detik jika koneksi SSE terputus
+
 ## Endpoints
 
-| Method | Endpoint                      | Deskripsi                             |
-| ------ | ----------------------------- | ------------------------------------- |
-| `GET`  | `/health`                     | Health check                          |
-| `GET`  | `/api/harga-bbm`              | Ambil data harga BBM (dengan cache)   |
-| `GET`  | `/api/harga-bbm?refresh=true` | Paksa ambil data baru dari isibens.in |
-| `POST` | `/api/refresh`                | Refresh data cache                    |
+| Method | Endpoint                      | Deskripsi                                     |
+| ------ | ----------------------------- | --------------------------------------------- |
+| `GET`  | `/`                           | Frontend dashboard harga BBM real-time        |
+| `GET`  | `/health`                     | Health check                                  |
+| `GET`  | `/api/harga-bbm`              | Ambil data harga BBM (dengan cache)           |
+| `GET`  | `/api/harga-bbm?refresh=true` | Paksa ambil data baru dari isibens.in         |
+| `POST` | `/api/refresh`                | Refresh data dan kirim update ke semua client |
+| `GET`  | `/api/stream`                 | SSE endpoint untuk real-time push             |
 
 ## Environment Variables
 
-| Variable   | Default      | Deskripsi        |
-| ---------- | ------------ | ---------------- |
-| `PORT`     | `5010`       | Port API server  |
-| `NODE_ENV` | `production` | Environment mode |
+| Variable           | Default        | Deskripsi                        |
+| ------------------ | -------------- | -------------------------------- |
+| `PORT`             | `5010`         | Port server                      |
+| `REFRESH_INTERVAL` | `300000`       | Interval auto-refresh (dalam ms) |
+| `NODE_ENV`         | `production`   | Environment mode                 |
 
 ## Kustomisasi Docker Compose
 

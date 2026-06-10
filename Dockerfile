@@ -9,6 +9,7 @@ RUN npm install --omit=dev
 # Copy source code
 COPY --chown=node:node src/ ./src/
 COPY --chown=node:node data/ ./data/
+COPY --chown=node:node public/ ./public/
 
 USER node
 

@@ -1,0 +1,473 @@
+<!doctype html>
+<html lang="id">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Harga BBM Real-time</title>
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+      body {
+        font-family:
+          -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+        background: linear-gradient(135deg, #0f0c29, #302b63, #24243e);
+        color: #e0e0e0;
+        min-height: 100vh;
+        padding: 20px;
+      }
+      .container {
+        max-width: 900px;
+        margin: 0 auto;
+      }
+      header {
+        text-align: center;
+        padding: 30px 0 20px;
+      }
+      header h1 {
+        font-size: 2rem;
+        font-weight: 700;
+        background: linear-gradient(to right, #f7971e, #ffd200);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+      }
+      header p {
+        color: #aaa;
+        margin-top: 6px;
+        font-size: 0.9rem;
+      }
+      .status-bar {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        gap: 12px;
+        margin: 10px 0 25px;
+        font-size: 0.85rem;
+      }
+      .status-dot {
+        display: inline-block;
+        width: 10px;
+        height: 10px;
+        border-radius: 50%;
+        animation: pulse 1.5s infinite;
+      }
+      .status-dot.online {
+        background: #4ade80;
+      }
+      .status-dot.offline {
+        background: #f87171;
+        animation: none;
+      }
+      @keyframes pulse {
+        0%,
+        100% {
+          opacity: 1;
+        }
+        50% {
+          opacity: 0.4;
+        }
+      }
+      .last-update {
+        color: #888;
+      }
+      .wilayah {
+        color: #fbbf24;
+      }
+      section {
+        margin-bottom: 30px;
+      }
+      section h2 {
+        font-size: 1.3rem;
+        margin-bottom: 12px;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+      }
+      table {
+        width: 100%;
+        border-collapse: collapse;
+        border-radius: 12px;
+        overflow: hidden;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+      }
+      thead {
+        background: rgba(255, 255, 255, 0.08);
+      }
+      th {
+        padding: 14px 16px;
+        text-align: left;
+        font-weight: 600;
+        font-size: 0.8rem;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        color: #999;
+      }
+      td {
+        padding: 12px 16px;
+        border-top: 1px solid rgba(255, 255, 255, 0.06);
+      }
+      tbody tr {
+        transition: background 0.2s;
+      }
+      tbody tr:hover {
+        background: rgba(255, 255, 255, 0.04);
+      }
+      tbody tr.new-row {
+        animation: highlight 2s ease-out;
+      }
+      @keyframes highlight {
+        0% {
+          background: rgba(251, 191, 36, 0.25);
+        }
+        100% {
+          background: transparent;
+        }
+      }
+      .price {
+        font-weight: 600;
+        font-family: "JetBrains Mono", "Fira Code", monospace;
+        color: #fff;
+      }
+      .price.zero {
+        color: #f87171;
+        text-decoration: line-through;
+      }
+      .badge {
+        display: inline-block;
+        background: rgba(255, 255, 255, 0.08);
+        padding: 2px 10px;
+        border-radius: 20px;
+        font-size: 0.75rem;
+        color: #aaa;
+      }
+      .refresh-bar {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        gap: 16px;
+        margin-top: 20px;
+        padding: 16px;
+        background: rgba(255, 255, 255, 0.04);
+        border-radius: 12px;
+      }
+      .refresh-bar button {
+        background: linear-gradient(to right, #f7971e, #ffd200);
+        border: none;
+        padding: 10px 24px;
+        border-radius: 8px;
+        font-weight: 600;
+        font-size: 0.85rem;
+        cursor: pointer;
+        color: #1a1a2e;
+        transition:
+          transform 0.15s,
+          box-shadow 0.15s;
+      }
+      .refresh-bar button:hover {
+        transform: translateY(-1px);
+        box-shadow: 0 4px 15px rgba(247, 151, 30, 0.4);
+      }
+      .refresh-bar button:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+        transform: none;
+      }
+      .refresh-bar .countdown {
+        color: #666;
+        font-size: 0.85rem;
+      }
+      .error-msg {
+        background: rgba(248, 113, 113, 0.15);
+        border: 1px solid rgba(248, 113, 113, 0.3);
+        color: #fca5a5;
+        padding: 12px 16px;
+        border-radius: 8px;
+        text-align: center;
+        margin: 20px 0;
+      }
+      footer {
+        text-align: center;
+        padding: 20px 0;
+        color: #555;
+        font-size: 0.75rem;
+      }
+      footer a {
+        color: #fbbf24;
+        text-decoration: none;
+      }
+      @media (max-width: 600px) {
+        body {
+          padding: 12px;
+        }
+        header h1 {
+          font-size: 1.5rem;
+        }
+        th,
+        td {
+          padding: 10px 12px;
+          font-size: 0.85rem;
+        }
+        .refresh-bar {
+          flex-direction: column;
+          gap: 10px;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <header>
+        <h1>Harga BBM Real-time</h1>
+        <p>Data dari <strong>isibens.in</strong> — diperbarui otomatis</p>
+      </header>
+
+      <div class="status-bar">
+        <span class="status-dot online" id="statusDot"></span>
+        <span id="statusText">Terhubung</span>
+        <span class="wilayah" id="wilayah"></span>
+        <span class="last-update" id="lastUpdate">—</span>
+      </div>
+
+      <div id="errorContainer" class="error-msg" style="display: none"></div>
+
+      <section id="bensinSection">
+        <h2>Bensin</h2>
+        <table>
+          <thead>
+            <tr>
+              <th>Produk</th>
+              <th>RON</th>
+              <th>Harga</th>
+            </tr>
+          </thead>
+          <tbody id="bensinBody">
+            <tr>
+              <td colspan="3" style="text-align: center; color: #666">
+                Memuat data...
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </section>
+
+      <section id="solarSection">
+        <h2>Solar / Diesel</h2>
+        <table>
+          <thead>
+            <tr>
+              <th>Produk</th>
+              <th>Cetane</th>
+              <th>Harga</th>
+            </tr>
+          </thead>
+          <tbody id="solarBody">
+            <tr>
+              <td colspan="3" style="text-align: center; color: #666">
+                Memuat data...
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </section>
+
+      <div class="refresh-bar">
+        <button id="refreshBtn" onclick="forceRefresh()">
+          Refresh Sekarang
+        </button>
+        <span class="countdown" id="countdown"
+          >Update otomatis dalam 30 detik</span
+        >
+      </div>
+
+      <footer>
+        Data diperoleh dari
+        <a href="https://isibens.in" target="_blank">isibens.in</a> —
+        <span id="refreshCount">0</span> kali diperbarui sejak halaman dibuka
+      </footer>
+    </div>
+
+    <script>
+      let refreshCount = 0;
+      let countdown = 30;
+      let countdownTimer = null;
+      let lastData = null;
+
+      // Format harga: Rp 12.300
+      function formatPrice(price) {
+        if (price === 0) return "N/A";
+        return "Rp " + price.toLocaleString("id-ID");
+      }
+
+      // Buat row tabel
+      function createRow(item, priceKey, specKey) {
+        const tr = document.createElement("tr");
+        const isZero = item.price === 0;
+        tr.innerHTML = `
+        <td><strong>${item.name}</strong></td>
+        <td><span class="badge">${item[specKey]}</span></td>
+        <td class="price ${isZero ? "zero" : ""}">${formatPrice(item.price)}</td>
+      `;
+        return tr;
+      }
+
+      // Render data ke tabel
+      function renderData(data) {
+        const bensinBody = document.getElementById("bensinBody");
+        const solarBody = document.getElementById("solarBody");
+
+        // Bensin
+        bensinBody.innerHTML = "";
+        if (data.bensin && data.bensin.length > 0) {
+          data.bensin.forEach((item) => {
+            bensinBody.appendChild(createRow(item, "price", "ron"));
+          });
+        } else {
+          bensinBody.innerHTML =
+            '<tr><td colspan="3" style="text-align:center;color:#666">Tidak ada data</td></tr>';
+        }
+
+        // Solar
+        solarBody.innerHTML = "";
+        if (data.solar && data.solar.length > 0) {
+          data.solar.forEach((item) => {
+            solarBody.appendChild(createRow(item, "price", "cetane"));
+          });
+        } else {
+          solarBody.innerHTML =
+            '<tr><td colspan="3" style="text-align:center;color:#666">Tidak ada data</td></tr>';
+        }
+
+        // Info
+        document.getElementById("lastUpdate").textContent = data.lastUpdate
+          ? "Update: " + data.lastUpdate
+          : "—";
+        document.getElementById("wilayah").textContent = data.wilayah || "";
+      }
+
+      // Update status
+      function setStatus(online) {
+        const dot = document.getElementById("statusDot");
+        const text = document.getElementById("statusText");
+        dot.className = "status-dot " + (online ? "online" : "offline");
+        text.textContent = online ? "Terhubung" : "Terputus";
+      }
+
+      // Tampilkan error
+      function showError(msg) {
+        const el = document.getElementById("errorContainer");
+        el.textContent = msg;
+        el.style.display = "block";
+      }
+
+      function hideError() {
+        document.getElementById("errorContainer").style.display = "none";
+      }
+
+      // Proses data baru
+      function processData(data) {
+        hideError();
+        setStatus(true);
+        renderData(data);
+        refreshCount++;
+        document.getElementById("refreshCount").textContent = refreshCount;
+        lastData = data;
+        resetCountdown();
+      }
+
+      // Hitung mundur
+      function resetCountdown() {
+        countdown = 30;
+        if (countdownTimer) clearInterval(countdownTimer);
+        countdownTimer = setInterval(() => {
+          countdown--;
+          document.getElementById("countdown").textContent =
+            "Update otomatis dalam " + countdown + " detik";
+          if (countdown <= 0) {
+            countdown = 30;
+          }
+        }, 1000);
+      }
+
+      // Force refresh via API
+      async function forceRefresh() {
+        const btn = document.getElementById("refreshBtn");
+        btn.disabled = true;
+        btn.textContent = "Memperbarui...";
+        try {
+          const res = await fetch("/api/harga-bbm?refresh=true");
+          const json = await res.json();
+          if (json.success && json.data) {
+            processData(json.data);
+          } else {
+            showError(json.message || "Gagal memperbarui data");
+          }
+        } catch (err) {
+          showError("Gagal terhubung ke server");
+        } finally {
+          btn.disabled = false;
+          btn.textContent = "🔄 Refresh Sekarang";
+        }
+      }
+
+      // Muat data awal
+      async function loadInitialData() {
+        try {
+          const res = await fetch("/api/harga-bbm");
+          const json = await res.json();
+          if (json.success && json.data) {
+            processData(json.data);
+          } else {
+            showError(json.message || "Gagal memuat data");
+          }
+        } catch (err) {
+          showError("Gagal terhubung ke server");
+          setStatus(false);
+        }
+      }
+
+      // SSE — real-time push dari server
+      function connectSSE() {
+        const evtSource = new EventSource("/api/stream");
+        evtSource.onmessage = (event) => {
+          try {
+            const json = JSON.parse(event.data);
+            if (json.success && json.data) {
+              processData(json.data);
+            }
+          } catch (e) {
+            console.warn("SSE parse error:", e);
+          }
+        };
+        evtSource.onerror = () => {
+          setStatus(false);
+          // Fallback: polling setiap 30 detik kalau SSE putus
+          console.warn("SSE disconnected, falling back to polling");
+        };
+        return evtSource;
+      }
+
+      // Polling fallback (kalau SSE gagal)
+      function startPollingFallback() {
+        setInterval(async () => {
+          try {
+            const res = await fetch("/api/harga-bbm");
+            const json = await res.json();
+            if (json.success && json.data) {
+              processData(json.data);
+            }
+          } catch (err) {
+            setStatus(false);
+          }
+        }, 30000);
+      }
+
+      // Init
+      loadInitialData();
+      const sse = connectSSE();
+      // SSE fallback polling (jalan setiap 30 detik juga sebagai cadangan)
+      startPollingFallback();
+    </script>
+  </body>
+</html>
