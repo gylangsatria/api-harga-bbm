@@ -66,8 +66,7 @@ async function scrapeHargaBBM() {
               let price = priceMatch[1].replace(/\./g, "").replace(/,/g, "");
               price = parseInt(price);
               let name = priceMatch[2].trim();
-              // Ganti Revvo → Vivo
-              name = name.replace(/^Revvo/i, "Vivo");
+              // Brand = Vivo, nama produk tetap original (Revvo92, dll)
               if (!isNaN(price) && name) {
                 result.bensin.push({ name, brand: getBrand(name), price, ron });
               }
@@ -101,10 +100,14 @@ async function scrapeHargaBBM() {
               let price = priceMatch[1].replace(/\./g, "").replace(/,/g, "");
               price = parseInt(price);
               let name = priceMatch[2].trim();
-              // Ganti Revvo → Vivo
-              name = name.replace(/^Revvo/i, "Vivo");
+              // Brand = Vivo, nama produk tetap original (Revvo92, dll)
               if (!isNaN(price) && name) {
-                result.solar.push({ name, brand: getBrand(name), price, cetane });
+                result.solar.push({
+                  name,
+                  brand: getBrand(name),
+                  price,
+                  cetane,
+                });
               }
             }
           }
