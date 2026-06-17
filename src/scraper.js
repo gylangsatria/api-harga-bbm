@@ -1,17 +1,50 @@
-const axios = require("axios");
 const cheerio = require("cheerio");
+const puppeteer = require("puppeteer-extra");
+const StealthPlugin = require("puppeteer-extra-plugin-stealth");
+
+// Use stealth plugin to bypass Cloudflare detection
+puppeteer.use(StealthPlugin());
 
 async function scrapeHargaBBM() {
+  let browser;
   try {
-    const { data } = await axios.get("https://isibens.in", {
-      timeout: 10000,
-      headers: {
-        "User-Agent":
-          "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36",
-      },
+    browser = await puppeteer.launch({
+      headless: true,
+      args: [
+        "--no-sandbox",
+        "--disable-setuid-sandbox",
+        "--disable-dev-shm-usage",
+        "--disable-gpu",
+      ],
     });
 
-    const $ = cheerio.load(data);
+    const page = await browser.newPage();
+    await page.setUserAgent(
+      "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/130.0.0.0 Safari/537.36",
+    );
+    await page.setViewport({ width: 1920, height: 1080 });
+
+    // Navigate and wait for the page to fully render (bypass Cloudflare)
+    await page.goto("https://isibens.in", {
+      waitUntil: "networkidle0",
+      timeout: 30000,
+    });
+
+    // Wait until the Cloudflare challenge is resolved and real content appears
+    await page.waitForFunction(
+      () => {
+        const title = document.title;
+        return title !== "One moment, please..." && title.includes("isibens");
+      },
+      { timeout: 30000 },
+    );
+
+    // Small extra wait for rendering
+    await new Promise((r) => setTimeout(r, 2000));
+
+    // Get the rendered HTML
+    const html = await page.content();
+    const $ = cheerio.load(html);
 
     const result = {
       bensin: [],
@@ -66,8 +99,7 @@ async function scrapeHargaBBM() {
               let price = priceMatch[1].replace(/\./g, "").replace(/,/g, "");
               price = parseInt(price);
               let name = priceMatch[2].trim();
-              // Brand = Vivo, nama produk tetap original (Revvo92, dll)
-              if (!isNaN(price) && name) {
+              if (!isNaN(price) && name && price > 0) {
                 result.bensin.push({ name, brand: getBrand(name), price, ron });
               }
             }
@@ -100,8 +132,7 @@ async function scrapeHargaBBM() {
               let price = priceMatch[1].replace(/\./g, "").replace(/,/g, "");
               price = parseInt(price);
               let name = priceMatch[2].trim();
-              // Brand = Vivo, nama produk tetap original (Revvo92, dll)
-              if (!isNaN(price) && name) {
+              if (!isNaN(price) && name && price > 0) {
                 result.solar.push({
                   name,
                   brand: getBrand(name),
@@ -115,15 +146,14 @@ async function scrapeHargaBBM() {
       }
     });
 
-    // Fallback data jika scraping gagal parsing
-    if (result.bensin.length === 0 && result.solar.length === 0) {
-      return getFallbackData();
-    }
-
     return result;
   } catch (error) {
     console.error("Scraping error:", error);
     return getFallbackData();
+  } finally {
+    if (browser) {
+      await browser.close();
+    }
   }
 }
 
@@ -140,7 +170,7 @@ function getFallbackData() {
       { name: "DexLite", brand: "Pertamina", price: 23000, cetane: 51 },
       { name: "Dex", brand: "Pertamina", price: 24800, cetane: 53 },
     ],
-    lastUpdate: "1 Juni 2026",
+    lastUpdate: "17 Juni 2026",
     wilayah: "Jabodetabek",
     isFallback: true,
   };
