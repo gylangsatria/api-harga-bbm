@@ -15,6 +15,7 @@ async function scrapeHargaBBM() {
         "--disable-setuid-sandbox",
         "--disable-dev-shm-usage",
         "--disable-gpu",
+        "--disable-blink-features=AutomationControlled",
       ],
     });
 
@@ -24,9 +25,9 @@ async function scrapeHargaBBM() {
     );
     await page.setViewport({ width: 1920, height: 1080 });
 
-    // Navigate and wait for the page to fully render (bypass Cloudflare)
+    // Navigate — waitUntil domcontentloaded saja agar tidak terhalang analytics/tracker
     await page.goto("https://isibens.in", {
-      waitUntil: "networkidle0",
+      waitUntil: "domcontentloaded",
       timeout: 30000,
     });
 
@@ -36,8 +37,13 @@ async function scrapeHargaBBM() {
         const title = document.title;
         return title !== "One moment, please..." && title.includes("isibens");
       },
-      { timeout: 30000 },
+      { timeout: 45000 },
     );
+
+    // Tunggu jaringan benar-benar idle setelah Cloudflare selesai
+    await page
+      .waitForNetworkIdle({ idleTime: 500, timeout: 15000 })
+      .catch(() => {});
 
     // Small extra wait for rendering
     await new Promise((r) => setTimeout(r, 2000));
@@ -161,8 +167,8 @@ function getFallbackData() {
   return {
     bensin: [
       { name: "Pertalite", brand: "Pertamina", price: 10000, ron: 90 },
-      { name: "Pertamax", brand: "Pertamina", price: 12300, ron: 92 },
-      { name: "Pertamax Green", brand: "Pertamina", price: 12900, ron: 95 },
+      { name: "Pertamax", brand: "Pertamina", price: 16250, ron: 92 },
+      { name: "Pertamax Green", brand: "Pertamina", price: 17000, ron: 95 },
       { name: "Pertamax Turbo", brand: "Pertamina", price: 20750, ron: 98 },
     ],
     solar: [
@@ -170,7 +176,7 @@ function getFallbackData() {
       { name: "DexLite", brand: "Pertamina", price: 23000, cetane: 51 },
       { name: "Dex", brand: "Pertamina", price: 24800, cetane: 53 },
     ],
-    lastUpdate: "17 Juni 2026",
+    lastUpdate: "10 Juni 2026",
     wilayah: "Jabodetabek",
     isFallback: true,
   };
